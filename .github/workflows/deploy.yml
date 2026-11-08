@@ -20,8 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Change these when you move to a custom domain (BASE_PATH=/) or to GCP.
-      SITE_URL: https://puremunky.github.io
-      BASE_PATH: /no-scroll-recipes
+      SITE_URL: https://noscrollrecipes.net
+      BASE_PATH: /
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

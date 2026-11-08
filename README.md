@@ -37,7 +37,7 @@ Tips go to PayPal via `DONATE.url` in `src/config.ts`. Set `DONATE.amountUrl` (e
 ## Hosting
 **Now: GitHub Pages.** Settings → Pages → Source: **GitHub Actions**. `.github/workflows/deploy.yml` builds and deploys every push to `main`.
 
-**Custom domain:** in the workflow set `SITE_URL=https://yourdomain.com` and `BASE_PATH=/`, add `public/CNAME` containing the domain, and point DNS at GitHub Pages.
+**Custom domain:** live at noscrollrecipes.net — `public/CNAME`, `SITE_URL`/`BASE_PATH` in the workflow, and the custom domain set in Settings → Pages.
 
 **Later: GCP.** `dist/` is plain static files, so swap the deploy step for one of:
 - Firebase Hosting — `firebase deploy --only hosting` (public dir `dist`); free SSL + CDN, simplest
