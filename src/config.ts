@@ -23,5 +23,5 @@ export const VERIFY = {
 // Cookie-free, privacy-friendly page counts. Set to your GoatCounter code
 // (the "yourcode" in yourcode.goatcounter.com). Empty = no analytics script at all.
 export const ANALYTICS = {
-  goatcounter: "",
+  goatcounter: "puremunky",
 };
