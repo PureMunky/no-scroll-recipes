@@ -5,7 +5,7 @@ export { fmtTime, isoDuration, fmtQty, unitLabel, ingredientLine } from "./forma
 export type Recipe = CollectionEntry<"recipes">;
 
 export const TAG_ORDER = [
-  "Breakfast", "Lunch", "Dinner", "Soup", "Side", "Dessert", "Snack",
+  "Breakfast", "Lunch", "Dinner", "Soup", "Side", "Dessert", "Snack", "Drink",
   "Quick", "Vegetarian", "Vegan", "Gluten-free", "Kid-friendly", "Make-ahead", "Baking",
 ];
 

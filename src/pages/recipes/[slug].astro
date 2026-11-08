@@ -1,7 +1,9 @@
 ---
 import type { GetStaticPaths } from "astro";
 import { render } from "astro:content";
+import { Image, getImage } from "astro:assets";
 import Base from "../../layouts/Base.astro";
+import { safeJson } from "../../lib/format";
 import { allRecipes, describe, fmtTime, ingredientLine, isoDuration, tagsOf, tagSlug, url, type Recipe } from "../../lib/recipes";
 import { SITE } from "../../config";
 
@@ -14,6 +16,13 @@ const d = recipe.data;
 const { Content } = await render(recipe);
 const tags = tagsOf(recipe);
 const description = describe(recipe);
+// Absolute photo URLs for search engines and link previews (Google prefers several aspect ratios, ≥1200px wide).
+const photos = d.image
+  ? [...new Set(await Promise.all([[1200, undefined], [1200, 900], [1200, 1200]].map(async ([w, h]) => {
+      const img = await getImage({ src: d.image!, width: w, height: h, fit: "cover", format: "jpg" });
+      return new URL(img.src, Astro.site).href;
+    })))]
+  : [];
 
 // schema.org Recipe structured data — what search engines use for recipe rich results.
 const jsonLd = {
@@ -21,11 +30,12 @@ const jsonLd = {
   "@type": "Recipe",
   name: d.title,
   description,
+  ...(photos.length ? { image: photos } : {}),
   author: { "@type": "Organization", name: d.author },
   datePublished: d.added.toISOString().slice(0, 10),
   totalTime: isoDuration(d.time),
   recipeYield: `${d.servings} servings`,
-  recipeCategory: tags.find((t) => ["Breakfast", "Lunch", "Dinner", "Soup", "Side", "Dessert", "Snack"].includes(t)),
+  recipeCategory: tags.find((t) => ["Breakfast", "Lunch", "Dinner", "Soup", "Side", "Dessert", "Snack", "Drink"].includes(t)),
   keywords: tags.join(", "),
   suitableForDiet: [
     ...(d.tags.includes("Vegetarian") ? ["https://schema.org/VegetarianDiet"] : []),
@@ -37,11 +47,12 @@ const jsonLd = {
 };
 const scaleData = { id: recipe.id, servings: d.servings, ingredients: d.ingredients };
 ---
-<Base title={d.title} description={description}>
-  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+<Base title={d.title} description={description} image={photos[0]}>
+  <script slot="head" type="application/ld+json" set:html={safeJson(jsonLd)} />
   <article class="recipe" data-pagefind-body>
     <a class="back" href={url("/browse/")} data-pagefind-ignore>← All recipes</a>
     <h1><span aria-hidden="true">{d.emoji}</span> {d.title}</h1>
+    {d.image && <Image class="hero" src={d.image} alt={d.imageAlt ?? d.title} widths={[480, 900, 1400]} sizes="(max-width: 900px) 100vw, 864px" loading="eager" fetchpriority="high" />}
     <div class="facts" data-pagefind-ignore>
       <span><b>{fmtTime(d.time)}</b></span><span><b>{d.ingredients.length}</b> ingredients</span>
       <span>{tags.map((t, i) => <>{i > 0 && " · "}<a href={url(`/tags/${tagSlug(t)}/`)} data-pagefind-filter="tag">{t}</a></>)}</span>
@@ -79,7 +90,7 @@ const scaleData = { id: recipe.id, servings: d.servings, ingredients: d.ingredie
     <p class="by" data-pagefind-ignore>By {d.author}</p>
     <div class="inline-donate" data-pagefind-ignore>Made this tonight? <a href="#support">Chip in a few bucks</a> to keep {SITE.name} ad-free.</div>
   </article>
-  <script type="application/json" id="recipe-data" set:html={JSON.stringify({ ...scaleData, title: d.title, steps: d.steps })} />
+  <script type="application/json" id="recipe-data" set:html={safeJson({ ...scaleData, title: d.title, steps: d.steps })} />
 </Base>
 
 <script>
@@ -125,6 +136,7 @@ const scaleData = { id: recipe.id, servings: d.servings, ingredients: d.ingredie
   .recipe{padding:24px 0 40px}
   .back{color:var(--muted);text-decoration:none;font-size:14px}
   h1{font-size:clamp(28px,5vw,40px);line-height:1.1;margin:10px 0 6px}
+  .hero{width:100%;height:auto;max-height:420px;object-fit:cover;border-radius:16px;margin:4px 0 12px}
   .facts{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin:6px 0 20px}
   .facts b{color:var(--ink)}
   .facts a{color:var(--muted)}

@@ -1,10 +1,10 @@
 ---
-import { SITE } from "../config";
+import { SITE, VERIFY, ANALYTICS } from "../config";
 import { url } from "../lib/recipes";
 import Donate from "../components/Donate.astro";
 
-interface Props { title?: string; description?: string; noindex?: boolean }
-const { title, description = SITE.description, noindex = false } = Astro.props;
+interface Props { title?: string; description?: string; noindex?: boolean; image?: string }
+const { title, description = SITE.description, noindex = false, image } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} — ad-free recipes, no life stories`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -21,11 +21,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <meta property="og:title" content={fullTitle}>
   <meta property="og:description" content={description}>
   <meta property="og:url" content={canonical}>
+  {image && <meta property="og:image" content={image}>}
+  <meta name="twitter:card" content={image ? "summary_large_image" : "summary"}>
   <link rel="icon" href={url("/favicon.svg")} type="image/svg+xml">
   <link rel="sitemap" href={url("/sitemap-index.xml")}>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  {VERIFY.google && <meta name="google-site-verification" content={VERIFY.google}>}
+  {VERIFY.bing && <meta name="msvalidate.01" content={VERIFY.bing}>}
+  {ANALYTICS.goatcounter && <script is:inline async data-goatcounter={`https://${ANALYTICS.goatcounter}.goatcounter.com/count`} src="https://gc.zgo.at/count.js"></script>}
   <slot name="head" />
 </head>
 <body>
@@ -34,6 +39,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       <a class="brand" href={url("/")}>No Scroll <span>Recipes</span></a>
       <nav>
         <a href={url("/browse/")}>Browse</a>
+        <a class="lg" href={url("/collections/")}>Collections</a>
         <a href={url("/search/")}>Search</a>
         <a class="btn btn-accent" href="#support">♥ <span class="lg">Support</span><span class="sm">Tip</span></a>
       </nav>
@@ -43,8 +49,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <Donate />
   <footer class="site-footer">
     <div class="wrap">
-      <p>{SITE.name} · No ads, no tracking, no pop-ups. Supported by readers.</p>
-      <p><a href={url("/browse/")}>All recipes</a> · <a href={url("/submit/")}>Submit a recipe</a> · <a href={url("/sitemap-index.xml")}>Sitemap</a></p>
+      <p>{SITE.name} · No ads, no cookies, no pop-ups. Supported by readers.</p>
+      <p><a href={url("/browse/")}>All recipes</a> · <a href={url("/collections/")}>Collections</a> · <a href={url("/submit/")}>Submit a recipe</a> · <a href={url("/sitemap-index.xml")}>Sitemap</a></p>
     </div>
   </footer>
 </body>

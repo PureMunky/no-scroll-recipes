@@ -1,0 +1,26 @@
+---
+import Base from "../../layouts/Base.astro";
+import { COLLECTIONS } from "../../collections";
+import { url } from "../../lib/recipes";
+---
+<Base title="Collections" description="Curated recipe collections: holiday menus, weeknight dinners and more. No ads.">
+  <h1>Collections</h1>
+  <ul class="grid">
+    {COLLECTIONS.map((c) => (
+      <li><a class="col" href={url(`/collections/${c.slug}/`)}>
+        <span class="emoji" aria-hidden="true">{c.emoji}</span>
+        <h2>{c.title}</h2>
+        <p>{c.description}</p>
+      </a></li>
+    ))}
+  </ul>
+</Base>
+
+<style>
+  h1{font-size:clamp(26px,4.5vw,36px);margin:28px 0 18px}
+  .col{display:flex;flex-direction:column;gap:6px;height:100%;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;text-decoration:none}
+  .col:hover{border-color:var(--accent)}
+  .emoji{font-size:30px}
+  h2{font-size:20px;margin:4px 0 0}
+  p{color:var(--muted);font-size:14px;margin:0}
+</style>

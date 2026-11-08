@@ -1,0 +1,82 @@
+name: Recipe submission → pull request
+
+# When someone submits the "Submit a recipe" issue form, turn it into a recipe file,
+# check that the whole site still builds, and open a pull request for review.
+# Editing the issue re-runs this and updates the same pull request.
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: submission-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  submission:
+    if: contains(github.event.issue.labels.*.name, 'recipe-submission') && github.event.issue.state == 'open'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NUM: ${{ github.event.issue.number }}
+      BRANCH: submission/issue-${{ github.event.issue.number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Convert issue to recipe file
+        id: convert
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_USER: ${{ github.event.issue.user.login }}
+        run: |
+          set -o pipefail
+          if node scripts/issue-to-recipe.mjs > out.json 2> err.txt; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+            echo "file=$(node -p 'require("./out.json").file')" >> "$GITHUB_OUTPUT"
+            echo "slug=$(node -p 'require("./out.json").slug')" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate by building the site
+        id: validate
+        if: steps.convert.outputs.ok == 'true'
+        run: |
+          if npm run build > build.log 2>&1; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Open or update pull request
+        if: steps.validate.outputs.ok == 'true'
+        env:
+          FILE: ${{ steps.convert.outputs.file }}
+          SLUG: ${{ steps.convert.outputs.slug }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add -- "$FILE"
+          git commit -m "Add recipe from #$NUM" -m "Closes #$NUM"
+          git push -f origin "$BRANCH"
+          if ! gh pr view "$BRANCH" --json number > /dev/null 2>&1; then
+            gh pr create --head "$BRANCH" --base main --title "Recipe: $SLUG" \
+              --body "Submitted in #$NUM. Built and validated automatically. Review the wording and amounts, add an emoji, then merge to publish. Closes #$NUM"
+          fi
+          PR=$(gh pr view "$BRANCH" --json url -q .url)
+          gh issue comment "$NUM" --body "Thanks! Your recipe passed the automatic checks and is waiting for review: $PR"
+
+      - name: Explain what needs fixing
+        if: steps.convert.outputs.ok == 'false' || steps.validate.outputs.ok == 'false'
+        run: |
+          if [ -s err.txt ]; then MSG=$(head -c 1500 err.txt); else MSG=$(grep -iE "error|invalid|expected" build.log | head -c 1500); fi
+          printf 'Thanks for the recipe! It needs a small fix before it can be reviewed:\n\n> %s\n\nEdit the issue to fix it and the check will run again.\n' "$MSG" > comment.md
+          gh issue comment "$NUM" --body-file comment.md

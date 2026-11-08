@@ -12,3 +12,16 @@ export const DONATE: { url: string; label: string; amountUrl?: string; amounts: 
   label: "PayPal",
   amounts: [3, 5, 10, 25],
 };
+
+// Search engine ownership checks. Paste just the content="…" value from each tool's
+// "HTML tag" verification option. Empty = not rendered.
+export const VERIFY = {
+  google: "",   // Google Search Console → <meta name="google-site-verification" content="…">
+  bing: "",     // Bing Webmaster Tools  → <meta name="msvalidate.01" content="…">
+};
+
+// Cookie-free, privacy-friendly page counts. Set to your GoatCounter code
+// (the "yourcode" in yourcode.goatcounter.com). Empty = no analytics script at all.
+export const ANALYTICS = {
+  goatcounter: "",
+};

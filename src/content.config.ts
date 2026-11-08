@@ -6,13 +6,13 @@ import { z } from "astro/zod";
 // A bad submission fails CI with a clear error instead of breaking the live site.
 export const UNITS = ["", "tsp", "tbsp", "cup", "oz", "lb", "pint", "can", "pinch", "g", "kg", "ml", "l"] as const;
 export const TAGS = [
-  "Breakfast", "Lunch", "Dinner", "Soup", "Side", "Dessert", "Snack",
+  "Breakfast", "Lunch", "Dinner", "Soup", "Side", "Dessert", "Snack", "Drink",
   "Vegetarian", "Vegan", "Gluten-free", "Kid-friendly", "Make-ahead", "Baking",
 ] as const;
 
 const recipes = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/recipes" }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string().min(3).max(80),
     emoji: z.string().max(8).default("🍽️"),
     description: z.string().max(160).optional(),
@@ -26,6 +26,9 @@ const recipes = defineCollection({
     })).min(1),
     steps: z.array(z.string().min(3)).min(1),
     tip: z.string().optional(),
+    // Optional photo stored next to the recipe file, e.g. image: "./fried-rice.jpg". Optimized at build.
+    image: image().optional(),
+    imageAlt: z.string().optional(),
     author: z.string().default("No Scroll Recipes"),
     added: z.coerce.date(),
     draft: z.boolean().default(false),

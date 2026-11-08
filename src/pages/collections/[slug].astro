@@ -1,0 +1,73 @@
+---
+import type { GetStaticPaths } from "astro";
+import Base from "../../layouts/Base.astro";
+import RecipeCard from "../../components/RecipeCard.astro";
+import { COLLECTIONS, type Collection } from "../../collections";
+import { allRecipes, url, type Recipe } from "../../lib/recipes";
+import { safeJson } from "../../lib/format";
+
+export const getStaticPaths = (async () => {
+  const byId = new Map((await allRecipes()).map((r) => [r.id, r]));
+  return COLLECTIONS.map((c) => {
+    const sections = c.sections.map((s) => ({
+      heading: s.heading,
+      recipes: s.recipes.map((id) => {
+        const r = byId.get(id);
+        if (!r) throw new Error(`Collection "${c.slug}" lists unknown recipe "${id}"`);
+        return r;
+      }),
+    }));
+    return { params: { slug: c.slug }, props: { c, sections } };
+  });
+}) satisfies GetStaticPaths;
+
+const { c, sections } = Astro.props as { c: Collection; sections: { heading: string; recipes: Recipe[] }[] };
+const count = sections.reduce((n, s) => n + s.recipes.length, 0);
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: c.title,
+  itemListElement: sections.flatMap((s) => s.recipes).map((r, i) => ({
+    "@type": "ListItem", position: i + 1, url: new URL(url(`/recipes/${r.id}/`), Astro.site).href,
+  })),
+};
+---
+<Base title={c.title} description={c.description}>
+  <script slot="head" type="application/ld+json" set:html={safeJson(jsonLd)} />
+  <header class="head">
+    <a class="back" href={url("/collections/")}>← All collections</a>
+    <h1><span aria-hidden="true">{c.emoji}</span> {c.title}</h1>
+    {c.intro && <p class="intro">{c.intro}</p>}
+    <p class="count">{count} recipes</p>
+  </header>
+
+  {c.plan && (
+    <section class="plan">
+      <h2>Game plan</h2>
+      <ol>{c.plan.map((p) => <li><b>{p.when}</b><span>{p.what}</span></li>)}</ol>
+    </section>
+  )}
+
+  {sections.map((s) => (
+    <section>
+      <h2 class="sec">{s.heading}</h2>
+      <ul class="grid">{s.recipes.map((r) => <RecipeCard recipe={r} />)}</ul>
+    </section>
+  ))}
+</Base>
+
+<style>
+  .head{padding:24px 0 6px}
+  .back{color:var(--muted);text-decoration:none;font-size:14px}
+  h1{font-size:clamp(28px,5vw,40px);line-height:1.1;margin:10px 0 8px}
+  .intro{color:var(--muted);max-width:620px;margin:0 0 6px}
+  .count{color:var(--muted);font-size:14px;margin:0}
+  .plan{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:22px 0}
+  .plan h2{margin:0 0 10px;font-size:20px}
+  .plan ol{list-style:none;margin:0;padding:0}
+  .plan li{display:grid;grid-template-columns:170px 1fr;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line)}
+  .plan li:last-child{border-bottom:0}
+  .plan b{color:var(--accent);font-weight:600}
+  @media (max-width:560px){.plan li{grid-template-columns:1fr;gap:2px}}
+  .sec{font-size:22px;margin:26px 0 12px}
+</style>

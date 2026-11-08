@@ -29,7 +29,7 @@ body:
     attributes:
       label: Tags
       multiple: true
-      options: [Breakfast, Lunch, Dinner, Soup, Side, Dessert, Snack, Vegetarian, Vegan, Gluten-free, Kid-friendly, Make-ahead, Baking]
+      options: [Breakfast, Lunch, Dinner, Soup, Side, Dessert, Snack, Drink, Vegetarian, Vegan, Gluten-free, Kid-friendly, Make-ahead, Baking]
     validations:
       required: true
   - type: textarea

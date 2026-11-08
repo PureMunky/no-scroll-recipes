@@ -35,3 +35,8 @@ export function ingredientLine(i: { qty: number; unit: string; item: string }, f
   return [fmtQty(n), unitLabel(i.unit, n), i.item].filter(Boolean).join(" ");
 }
 
+
+/** JSON safe to embed inside a <script> tag: escapes "<" so content can't close the tag. */
+export function safeJson(v: unknown): string {
+  return JSON.stringify(v).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+}

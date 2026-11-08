@@ -4,8 +4,10 @@ import RecipeCard from "../components/RecipeCard.astro";
 import TagBar from "../components/TagBar.astro";
 import { allRecipes, url } from "../lib/recipes";
 import { SITE } from "../config";
+import { COLLECTIONS } from "../collections";
 
 const all = await allRecipes();
+const featured = COLLECTIONS.filter((c) => c.featured);
 const latest = [...all]
   .sort((a, b) => b.data.added.getTime() - a.data.added.getTime() || a.data.title.localeCompare(b.data.title))
   .slice(0, 24);
@@ -21,6 +23,14 @@ const latest = [...all]
     <TagBar />
   </section>
 
+  {featured.map((c) => (
+    <a class="feature" href={url(`/collections/${c.slug}/`)}>
+      <span class="f-emoji" aria-hidden="true">{c.emoji}</span>
+      <span><b>{c.title}</b><span class="f-sub">{c.sections.reduce((n, s) => n + s.recipes.length, 0)} recipes + a make-ahead game plan</span></span>
+      <span class="f-go" aria-hidden="true">→</span>
+    </a>
+  ))}
+
   <h2 class="section-h">Fresh in the kitchen</h2>
   <ul class="grid">{latest.map((r) => <RecipeCard recipe={r} />)}</ul>
   <p class="more"><a class="btn btn-ghost" href={url("/browse/")}>Browse all {all.length} recipes →</a></p>
@@ -33,4 +43,9 @@ const latest = [...all]
   .promise{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
   .section-h{font-size:22px;margin:8px 0 14px}
   .more{text-align:center;margin:-10px 0 34px}
+  .feature{display:flex;align-items:center;gap:14px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:16px;padding:16px 18px;margin:0 0 26px;text-decoration:none}
+  .f-emoji{font-size:34px}
+  .feature b{font-family:Fraunces,Georgia,serif;font-size:20px;display:block}
+  .f-sub{color:var(--muted);font-size:14px}
+  .f-go{margin-left:auto;font-size:22px;color:var(--accent)}
 </style>

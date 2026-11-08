@@ -23,6 +23,19 @@ src/
   pages/                 routes: /, /recipes/[slug], /browse, /tags/[tag], /search, /submit
 ```
 
+## Collections
+Curated pages like `/collections/thanksgiving/` live in `src/collections.ts`: a title, an optional game plan, and sections of recipe ids. Set `featured: true` to put a banner on the home page. A typo in a recipe id fails the build.
+
+## Submissions
+1. A reader fills in the **Submit a recipe** issue form.
+2. `.github/workflows/recipe-submission.yml` runs `scripts/issue-to-recipe.mjs`, builds the whole site to validate it, and opens a pull request (or comments on the issue explaining what to fix).
+3. You review it, add an emoji or photo, and merge. Merging publishes it and closes the issue.
+
+Requires **Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull requests**.
+
+## Search engines & analytics
+Paste verification codes into `VERIFY` and a GoatCounter code into `ANALYTICS` in `src/config.ts`. Both render nothing while empty.
+
 ## Commands
 ```bash
 npm ci

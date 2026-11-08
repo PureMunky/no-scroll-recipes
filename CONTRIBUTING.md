@@ -26,6 +26,19 @@ Optional extra notes in Markdown go here.
 
 Units: `tsp tbsp cup oz lb pint can pinch g kg ml l` or `""`. Quantities scale with the servings control, so use numbers (`0.5`, not `1/2`).
 
+## Photos (optional, but they help search)
+
+Put the photo next to the recipe file with the same name and point to it:
+
+```yaml
+image: "./fried-rice.jpg"
+imageAlt: "A bowl of fried rice with peas and green onions"
+```
+
+- JPG or PNG, landscape, at least 1200px wide. Bigger is fine — the build resizes and converts it.
+- A real photo of the dish as made from this recipe. No stock or AI-generated images.
+- Google only shows a recipe with a picture in recipe results if it has a photo.
+
 ## Checking your work
 
 ```bash
