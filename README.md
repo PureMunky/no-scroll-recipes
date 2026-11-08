@@ -32,7 +32,7 @@ npm run preview
 ```
 
 ## Donations
-Set `DONATE.url` in `src/config.ts` to your tip page (Ko-fi, Buy Me a Coffee, GitHub Sponsors, Stripe Payment Link).
+Tips go to PayPal via `DONATE.url` in `src/config.ts`. Set `DONATE.amountUrl` (e.g. `https://paypal.me/NAME/{amount}`) to show preset amount buttons.
 
 ## Hosting
 **Now: GitHub Pages.** Settings → Pages → Source: **GitHub Actions**. `.github/workflows/deploy.yml` builds and deploys every push to `main`.

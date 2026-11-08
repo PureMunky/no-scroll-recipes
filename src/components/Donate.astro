@@ -1,6 +1,8 @@
 ---
 import { DONATE } from "../config";
+const withAmounts = Boolean(DONATE.amountUrl);
 const def = DONATE.amounts[1] ?? DONATE.amounts[0];
+const linkFor = (a: number) => (DONATE.amountUrl ?? DONATE.url).replace("{amount}", String(a));
 ---
 <section class="wrap" id="support">
   <div class="donate">
@@ -8,22 +10,29 @@ const def = DONATE.amounts[1] ?? DONATE.amounts[0];
       <h2>Keep it ad-free</h2>
       <p>No ads, no pop-ups, no life story before the ingredients. If a recipe here saved your dinner, a small tip covers hosting and keeps it that way.</p>
     </div>
-    <div data-donate data-url={DONATE.url} data-label={DONATE.label}>
-      <div class="amounts">
-        {DONATE.amounts.map((a) => <button type="button" class:list={["amt", { on: a === def }]} data-amt={a}>${a}</button>)}
-      </div>
-      <a class="btn btn-accent donate-go" href={DONATE.url} target="_blank" rel="noopener">Tip ${def} via {DONATE.label}</a>
-      <div class="fine">Opens {DONATE.label} in a new tab</div>
+    <div data-donate data-label={DONATE.label} data-template={DONATE.amountUrl ?? ""}>
+      {withAmounts && (
+        <div class="amounts">
+          {DONATE.amounts.map((a) => <button type="button" class:list={["amt", { on: a === def }]} data-amt={a}>${a}</button>)}
+        </div>
+      )}
+      <a class="btn btn-accent donate-go" href={withAmounts ? linkFor(def) : DONATE.url} target="_blank" rel="noopener">
+        {withAmounts ? `Tip $${def} via ${DONATE.label}` : `♥ Tip via ${DONATE.label}`}
+      </a>
+      <div class="fine">{withAmounts ? `Opens ${DONATE.label} in a new tab` : `Any amount helps · opens ${DONATE.label} in a new tab`}</div>
     </div>
   </div>
 </section>
 
 <script>
   document.querySelectorAll<HTMLElement>("[data-donate]").forEach((box) => {
+    const tpl = box.dataset.template;
+    if (!tpl) return;
     const go = box.querySelector<HTMLAnchorElement>(".donate-go")!;
     box.querySelectorAll<HTMLButtonElement>(".amt").forEach((b) => b.addEventListener("click", () => {
       box.querySelectorAll(".amt").forEach((x) => x.classList.remove("on"));
       b.classList.add("on");
+      go.href = tpl.replace("{amount}", b.dataset.amt!);
       go.textContent = `Tip $${b.dataset.amt} via ${box.dataset.label}`;
     }));
   });

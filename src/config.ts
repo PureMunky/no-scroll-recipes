@@ -5,9 +5,10 @@ export const SITE = {
   pageSize: 48,
 };
 
-// Point this at your tip page (Ko-fi, Buy Me a Coffee, GitHub Sponsors, Stripe Payment Link…)
-export const DONATE = {
-  url: "https://ko-fi.com/YOUR-PAGE",
-  label: "Ko-fi",
+// Tip link. `url` is the plain link; amount buttons only show if `amountUrl` is set
+// (a link that accepts an amount, e.g. "https://paypal.me/YOURNAME/{amount}").
+export const DONATE: { url: string; label: string; amountUrl?: string; amounts: number[] } = {
+  url: "https://www.paypal.com/qrcodes/p2pqrc/U7DU8PUJ4QQJN",
+  label: "PayPal",
   amounts: [3, 5, 10, 25],
 };
