@@ -1,0 +1,38 @@
+---
+import Base from "../layouts/Base.astro";
+import { url } from "../lib/recipes";
+const pagefind = url("/pagefind/");
+---
+<Base title="Search" description="Search every recipe by name or ingredient." noindex>
+  <link slot="head" rel="stylesheet" href={`${pagefind}pagefind-ui.css`}>
+  <h1>Search recipes</h1>
+  <p class="sub">Search by dish or ingredient, then filter by tag.</p>
+  <div id="search" data-bundle={pagefind}></div>
+  <noscript><p>Search needs JavaScript. <a href={url("/browse/")}>Browse all recipes</a> instead.</p></noscript>
+</Base>
+
+<script is:inline>
+  (function () {
+    var el = document.getElementById("search");
+    var bundle = el.dataset.bundle;
+    var s = document.createElement("script");
+    s.src = bundle + "pagefind-ui.js";
+    s.onload = function () {
+      var ui = new PagefindUI({ element: "#search", bundlePath: bundle, showImages: false, showSubResults: false, resetStyles: false, pageSize: 10, autofocus: true });
+      var q = new URLSearchParams(location.search).get("q");
+      if (q) ui.triggerSearch(q);
+    };
+    s.onerror = function () { el.innerHTML = '<p>Search index isn\'t built yet — run <code>npm run build</code>.</p>'; };
+    document.head.appendChild(s);
+  })();
+</script>
+
+<style>
+  h1{font-size:clamp(26px,4.5vw,36px);margin:28px 0 4px}
+  .sub{color:var(--muted);margin:0 0 18px}
+  #search{
+    --pagefind-ui-primary:var(--accent); --pagefind-ui-text:var(--ink); --pagefind-ui-background:var(--card);
+    --pagefind-ui-border:var(--line); --pagefind-ui-tag:var(--accent-soft); --pagefind-ui-border-radius:12px;
+    --pagefind-ui-font:Inter,system-ui,sans-serif; margin-bottom:30px;
+  }
+</style>

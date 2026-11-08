@@ -1,0 +1,29 @@
+---
+import Base from "../layouts/Base.astro";
+import RecipeCard from "./RecipeCard.astro";
+import TagBar from "./TagBar.astro";
+import type { Page } from "astro";
+import type { Recipe } from "../lib/recipes";
+
+interface Props { page: Page<Recipe>; heading: string; active: string; description: string }
+const { page, heading, active, description } = Astro.props;
+const title = page.currentPage > 1 ? `${heading} — page ${page.currentPage}` : heading;
+---
+<Base title={title} description={description}>
+  <h1>{heading}</h1>
+  <p class="sub">{page.total} recipes{page.lastPage > 1 && ` · page ${page.currentPage} of ${page.lastPage}`}</p>
+  <TagBar active={active} />
+  <ul class="grid">{page.data.map((r) => <RecipeCard recipe={r} />)}</ul>
+  {page.lastPage > 1 && (
+    <nav class="pager" aria-label="Pagination">
+      {page.url.prev ? <a class="btn btn-ghost" href={page.url.prev}>← Previous</a> : <span />}
+      <span>Page {page.currentPage} of {page.lastPage}</span>
+      {page.url.next ? <a class="btn btn-ghost" href={page.url.next}>Next →</a> : <span />}
+    </nav>
+  )}
+</Base>
+
+<style>
+  h1{font-size:clamp(26px,4.5vw,36px);margin:28px 0 4px}
+  .sub{color:var(--muted);margin:0}
+</style>

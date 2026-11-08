@@ -1,0 +1,36 @@
+---
+import Base from "../layouts/Base.astro";
+import RecipeCard from "../components/RecipeCard.astro";
+import TagBar from "../components/TagBar.astro";
+import { allRecipes, url } from "../lib/recipes";
+import { SITE } from "../config";
+
+const all = await allRecipes();
+const latest = [...all]
+  .sort((a, b) => b.data.added.getTime() - a.data.added.getTime() || a.data.title.localeCompare(b.data.title))
+  .slice(0, 24);
+---
+<Base>
+  <section class="hero">
+    <h1>{SITE.tagline}</h1>
+    <p>{all.length} recipes. Tap one and you land on the ingredients and steps. That's the whole site.</p>
+    <div class="promise"><span class="pill">No ads</span><span class="pill">No life stories</span><span class="pill">No pop-ups</span><span class="pill">Reader-supported</span></div>
+    <form action={url("/search/")} method="get" role="search">
+      <input class="search-box" type="search" name="q" placeholder="Search recipes or ingredients — try “garlic”" aria-label="Search recipes">
+    </form>
+    <TagBar />
+  </section>
+
+  <h2 class="section-h">Fresh in the kitchen</h2>
+  <ul class="grid">{latest.map((r) => <RecipeCard recipe={r} />)}</ul>
+  <p class="more"><a class="btn btn-ghost" href={url("/browse/")}>Browse all {all.length} recipes →</a></p>
+</Base>
+
+<style>
+  .hero{padding:34px 0 0}
+  h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:0 0 8px}
+  .hero p{color:var(--muted);margin:0 0 20px;max-width:560px}
+  .promise{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+  .section-h{font-size:22px;margin:8px 0 14px}
+  .more{text-align:center;margin:-10px 0 34px}
+</style>

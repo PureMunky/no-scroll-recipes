@@ -1,0 +1,160 @@
+---
+import type { GetStaticPaths } from "astro";
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { allRecipes, describe, fmtTime, ingredientLine, isoDuration, tagsOf, tagSlug, url, type Recipe } from "../../lib/recipes";
+import { SITE } from "../../config";
+
+export const getStaticPaths = (async () => {
+  return (await allRecipes()).map((recipe) => ({ params: { slug: recipe.id }, props: { recipe } }));
+}) satisfies GetStaticPaths;
+
+const { recipe } = Astro.props as { recipe: Recipe };
+const d = recipe.data;
+const { Content } = await render(recipe);
+const tags = tagsOf(recipe);
+const description = describe(recipe);
+
+// schema.org Recipe structured data — what search engines use for recipe rich results.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Recipe",
+  name: d.title,
+  description,
+  author: { "@type": "Organization", name: d.author },
+  datePublished: d.added.toISOString().slice(0, 10),
+  totalTime: isoDuration(d.time),
+  recipeYield: `${d.servings} servings`,
+  recipeCategory: tags.find((t) => ["Breakfast", "Lunch", "Dinner", "Soup", "Side", "Dessert", "Snack"].includes(t)),
+  keywords: tags.join(", "),
+  suitableForDiet: [
+    ...(d.tags.includes("Vegetarian") ? ["https://schema.org/VegetarianDiet"] : []),
+    ...(d.tags.includes("Vegan") ? ["https://schema.org/VeganDiet"] : []),
+    ...(d.tags.includes("Gluten-free") ? ["https://schema.org/GlutenFreeDiet"] : []),
+  ],
+  recipeIngredient: d.ingredients.map((i) => ingredientLine(i)),
+  recipeInstructions: d.steps.map((text, n) => ({ "@type": "HowToStep", position: n + 1, text })),
+};
+const scaleData = { id: recipe.id, servings: d.servings, ingredients: d.ingredients };
+---
+<Base title={d.title} description={description}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <article class="recipe" data-pagefind-body>
+    <a class="back" href={url("/browse/")} data-pagefind-ignore>← All recipes</a>
+    <h1><span aria-hidden="true">{d.emoji}</span> {d.title}</h1>
+    <div class="facts" data-pagefind-ignore>
+      <span><b>{fmtTime(d.time)}</b></span><span><b>{d.ingredients.length}</b> ingredients</span>
+      <span>{tags.map((t, i) => <>{i > 0 && " · "}<a href={url(`/tags/${tagSlug(t)}/`)} data-pagefind-filter="tag">{t}</a></>)}</span>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <h2>Ingredients
+          <span class="scale" data-pagefind-ignore>
+            <button type="button" data-scale="-1" aria-label="Fewer servings">−</button>
+            <span><b data-servings>{d.servings}</b> servings</span>
+            <button type="button" data-scale="1" aria-label="More servings">+</button>
+          </span>
+        </h2>
+        <ul class="ing">
+          {d.ingredients.map((i, n) => (
+            <li data-i={n}><span class="box" aria-hidden="true"></span><span class="txt">{ingredientLine(i)}</span></li>
+          ))}
+        </ul>
+        <div class="hint" data-pagefind-ignore>Tap to check off · servings adjust amounts</div>
+      </section>
+
+      <section class="panel">
+        <h2>Steps</h2>
+        <ol class="steps">{d.steps.map((s, n) => <li data-s={n}>{s}</li>)}</ol>
+        {d.tip && <div class="note"><b>Tip:</b> {d.tip}</div>}
+        <div class="extra"><Content /></div>
+        <div class="actions" data-pagefind-ignore>
+          <button class="btn btn-ghost" type="button" data-copy>Copy recipe</button>
+          <button class="btn btn-ghost" type="button" data-print>Print</button>
+          <button class="btn btn-ghost" type="button" data-reset>Reset checkmarks</button>
+        </div>
+      </section>
+    </div>
+    <p class="by" data-pagefind-ignore>By {d.author}</p>
+    <div class="inline-donate" data-pagefind-ignore>Made this tonight? <a href="#support">Chip in a few bucks</a> to keep {SITE.name} ad-free.</div>
+  </article>
+  <script type="application/json" id="recipe-data" set:html={JSON.stringify({ ...scaleData, title: d.title, steps: d.steps })} />
+</Base>
+
+<script>
+  import { ingredientLine } from "../../lib/format";
+  const data = JSON.parse(document.getElementById("recipe-data")!.textContent!);
+  const key = `nsr-${data.id}`;
+  const load = () => { try { return JSON.parse(localStorage.getItem(key) || "null"); } catch { return null; } };
+  const state: { servings: number; ing: number[]; steps: number[] } = load() || { servings: data.servings, ing: [], steps: [] };
+  const save = () => { try { localStorage.setItem(key, JSON.stringify(state)); } catch {} };
+
+  const draw = () => {
+    const f = state.servings / data.servings;
+    document.querySelector("[data-servings]")!.textContent = String(state.servings);
+    document.querySelectorAll<HTMLElement>("[data-i]").forEach((li) => {
+      const n = Number(li.dataset.i);
+      li.querySelector(".txt")!.textContent = ingredientLine(data.ingredients[n], f);
+      li.classList.toggle("done", state.ing.includes(n));
+    });
+    document.querySelectorAll<HTMLElement>("[data-s]").forEach((li) => li.classList.toggle("done", state.steps.includes(Number(li.dataset.s))));
+  };
+  const toggle = (arr: number[], n: number) => (arr.includes(n) ? arr.filter((x) => x !== n) : [...arr, n]);
+
+  document.querySelectorAll<HTMLButtonElement>("[data-scale]").forEach((b) => b.addEventListener("click", () => {
+    state.servings = Math.max(1, state.servings + Number(b.dataset.scale)); save(); draw();
+  }));
+  document.querySelectorAll<HTMLElement>("[data-i]").forEach((li) => li.addEventListener("click", () => { state.ing = toggle(state.ing, Number(li.dataset.i)); save(); draw(); }));
+  document.querySelectorAll<HTMLElement>("[data-s]").forEach((li) => li.addEventListener("click", () => { state.steps = toggle(state.steps, Number(li.dataset.s)); save(); draw(); }));
+  document.querySelector("[data-reset]")!.addEventListener("click", () => { state.ing = []; state.steps = []; save(); draw(); });
+  document.querySelector("[data-print]")!.addEventListener("click", () => window.print());
+  document.querySelector("[data-copy]")!.addEventListener("click", async (e) => {
+    const f = state.servings / data.servings;
+    const txt = `${data.title} (serves ${state.servings})\n\nIngredients\n` +
+      data.ingredients.map((i: any) => `- ${ingredientLine(i, f)}`).join("\n") +
+      `\n\nSteps\n` + data.steps.map((s: string, n: number) => `${n + 1}. ${s}`).join("\n") + `\n\n${location.href}`;
+    const btn = e.currentTarget as HTMLButtonElement;
+    try { await navigator.clipboard.writeText(txt); btn.textContent = "Copied ✓"; } catch { btn.textContent = "Couldn't copy"; }
+    setTimeout(() => (btn.textContent = "Copy recipe"), 1600);
+  });
+  draw();
+</script>
+
+<style>
+  .recipe{padding:24px 0 40px}
+  .back{color:var(--muted);text-decoration:none;font-size:14px}
+  h1{font-size:clamp(28px,5vw,40px);line-height:1.1;margin:10px 0 6px}
+  .facts{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin:6px 0 20px}
+  .facts b{color:var(--ink)}
+  .facts a{color:var(--muted)}
+  .cols{display:grid;grid-template-columns:minmax(240px,1fr) 1.5fr;gap:22px}
+  @media (max-width:700px){.cols{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .panel h2{font-size:20px;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .scale{display:flex;align-items:center;gap:8px;font:500 14px Inter,sans-serif}
+  .scale button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:16px;cursor:pointer}
+  .ing{list-style:none;margin:0;padding:0}
+  .ing li{padding:8px 0;border-bottom:1px dashed var(--line);display:flex;gap:10px;cursor:pointer}
+  .ing li:last-child{border-bottom:0}
+  .box{flex:0 0 18px;height:18px;border:2px solid var(--line);border-radius:5px;margin-top:3px}
+  .ing li.done{color:var(--muted);text-decoration:line-through}
+  .ing li.done .box{background:var(--green);border-color:var(--green)}
+  .steps{margin:0;padding:0;list-style:none;counter-reset:s}
+  .steps li{counter-increment:s;padding:10px 0 10px 42px;position:relative;border-bottom:1px dashed var(--line);cursor:pointer}
+  .steps li:last-child{border-bottom:0}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:10px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+  .steps li.done{color:var(--muted)}
+  .steps li.done::before{content:"✓";background:var(--green);color:#fff}
+  .hint{color:var(--muted);font-size:12px;margin-top:10px}
+  .note{margin-top:18px;padding:14px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;font-size:15px}
+  .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .by{color:var(--muted);font-size:13px;margin:16px 0 0}
+  .inline-donate{margin-top:18px;text-align:center;color:var(--muted);font-size:14px}
+  .inline-donate a{color:var(--accent);font-weight:600}
+  @media print{
+    :global(.site-header),:global(.site-footer),:global(#support),.back,.actions,.inline-donate,.hint,.scale button{display:none!important}
+    .panel{border:0;padding:0}
+    .cols{grid-template-columns:1fr}
+  }
+</style>

@@ -1,0 +1,17 @@
+---
+import type { GetStaticPaths } from "astro";
+import ListPage from "../../../components/ListPage.astro";
+import { allRecipes, allTags, tagsOf } from "../../../lib/recipes";
+import { SITE } from "../../../config";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const recipes = await allRecipes();
+  return (await allTags()).flatMap(({ tag, slug }) =>
+    paginate(recipes.filter((r) => tagsOf(r).includes(tag)), { params: { tag: slug }, props: { tag }, pageSize: SITE.pageSize }),
+  );
+}) satisfies GetStaticPaths;
+
+const { page, tag } = Astro.props;
+const heading = tag === "Quick" ? "Quick recipes (30 min or less)" : `${tag} recipes`;
+---
+<ListPage page={page} heading={heading} active={Astro.params.tag!} description={`${heading} from ${SITE.name} — straight to the ingredients and steps, no ads.`} />

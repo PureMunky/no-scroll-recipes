@@ -1,0 +1,12 @@
+---
+import { allTags, url } from "../lib/recipes";
+interface Props { active?: string }
+const { active = "all" } = Astro.props;
+const tags = await allTags();
+---
+<nav class="tags" aria-label="Filter by tag">
+  <a class:list={["tag", { on: active === "all" }]} href={url("/browse/")}>All</a>
+  {tags.map((t) => (
+    <a class:list={["tag", { on: active === t.slug }]} href={url(`/tags/${t.slug}/`)}>{t.tag}<small>{t.count}</small></a>
+  ))}
+</nav>

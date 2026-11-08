@@ -1,0 +1,68 @@
+name: Submit a recipe
+description: Share a recipe for No Scroll Recipes. It'll be reviewed before it's published.
+title: "Recipe: "
+labels: ["recipe-submission"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Recipe name
+      placeholder: Weeknight Chicken Tacos
+    validations:
+      required: true
+  - type: input
+    id: time
+    attributes:
+      label: Total time (minutes)
+      placeholder: "25"
+    validations:
+      required: true
+  - type: input
+    id: servings
+    attributes:
+      label: Servings
+      placeholder: "4"
+    validations:
+      required: true
+  - type: dropdown
+    id: tags
+    attributes:
+      label: Tags
+      multiple: true
+      options: [Breakfast, Lunch, Dinner, Soup, Side, Dessert, Snack, Vegetarian, Vegan, Gluten-free, Kid-friendly, Make-ahead, Baking]
+    validations:
+      required: true
+  - type: textarea
+    id: ingredients
+    attributes:
+      label: Ingredients
+      description: One per line, amount first.
+      placeholder: |
+        1.5 lb boneless chicken thighs
+        1 tbsp chili powder
+        8 small tortillas
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      description: One step per line, in order. Include safe cooking temperatures for meat, fish and eggs.
+    validations:
+      required: true
+  - type: input
+    id: tip
+    attributes:
+      label: One tip (optional)
+  - type: input
+    id: author
+    attributes:
+      label: Credit as (optional)
+      description: Name to show on the recipe. Leave blank to stay anonymous.
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Terms
+      options:
+        - label: This recipe is written in my own words, and No Scroll Recipes may publish it with credit to me.
+          required: true

@@ -1,0 +1,48 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:          # every submission PR gets built and validated before merge
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Change these when you move to a custom domain (BASE_PATH=/) or to GCP.
+      SITE_URL: https://puremunky.github.io
+      BASE_PATH: /no-scroll-recipes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Fails if any recipe file breaks the schema in src/content.config.ts
+      - run: npm run build
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

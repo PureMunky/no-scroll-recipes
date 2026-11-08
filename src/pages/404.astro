@@ -1,0 +1,18 @@
+---
+import Base from "../layouts/Base.astro";
+import { url } from "../lib/recipes";
+---
+<Base title="Not found" noindex>
+  <div class="nf">
+    <h1>That recipe wandered off.</h1>
+    <p>Try a search, or browse everything.</p>
+    <form action={url("/search/")} method="get" role="search"><input class="search-box" type="search" name="q" placeholder="Search recipes" aria-label="Search recipes"></form>
+    <p><a class="btn btn-ghost" href={url("/browse/")}>Browse all recipes</a></p>
+  </div>
+</Base>
+
+<style>
+  .nf{max-width:520px;padding:40px 0}
+  h1{font-size:32px;margin:0 0 8px}
+  p{color:var(--muted)}
+</style>

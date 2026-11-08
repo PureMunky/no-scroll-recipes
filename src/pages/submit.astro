@@ -1,0 +1,26 @@
+---
+import Base from "../layouts/Base.astro";
+const repo = "https://github.com/PureMunky/no-scroll-recipes";
+---
+<Base title="Submit a recipe" description="Share a recipe with No Scroll Recipes.">
+  <article class="prose">
+    <h1>Submit a recipe</h1>
+    <p>Got a dish worth sharing? Submissions are reviewed before they go live, and every recipe follows the same no-fluff format: ingredients, steps, and one optional tip.</p>
+    <p><a class="btn btn-accent" href={`${repo}/issues/new?template=recipe.yml`}>Submit a recipe on GitHub</a></p>
+    <h2>The ground rules</h2>
+    <ul>
+      <li>Write it in your own words. Don't copy steps from a cookbook or another site.</li>
+      <li>Ingredients with real amounts, steps in order, and safe cooking temperatures for meat, fish and eggs.</li>
+      <li>By submitting, you agree we can publish your recipe on this site with credit to you.</li>
+    </ul>
+    <p class="muted">A GitHub account is needed for now. A no-account form is on the way.</p>
+  </article>
+</Base>
+
+<style>
+  .prose{max-width:640px;padding:10px 0 30px}
+  h1{font-size:clamp(26px,4.5vw,36px);margin:28px 0 8px}
+  h2{font-size:21px;margin-top:28px}
+  li{margin:6px 0}
+  .muted{color:var(--muted);font-size:14px}
+</style>

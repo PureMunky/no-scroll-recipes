@@ -1,0 +1,13 @@
+---
+import type { GetStaticPaths } from "astro";
+import ListPage from "../../components/ListPage.astro";
+import { allRecipes } from "../../lib/recipes";
+import { SITE } from "../../config";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  return paginate(await allRecipes(), { pageSize: SITE.pageSize });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+---
+<ListPage page={page} heading="All recipes" active="all" description={`Browse every ${SITE.name} recipe A–Z. No ads, no life stories.`} />

@@ -1,0 +1,42 @@
+---
+import { DONATE } from "../config";
+const def = DONATE.amounts[1] ?? DONATE.amounts[0];
+---
+<section class="wrap" id="support">
+  <div class="donate">
+    <div>
+      <h2>Keep it ad-free</h2>
+      <p>No ads, no pop-ups, no life story before the ingredients. If a recipe here saved your dinner, a small tip covers hosting and keeps it that way.</p>
+    </div>
+    <div data-donate data-url={DONATE.url} data-label={DONATE.label}>
+      <div class="amounts">
+        {DONATE.amounts.map((a) => <button type="button" class:list={["amt", { on: a === def }]} data-amt={a}>${a}</button>)}
+      </div>
+      <a class="btn btn-accent donate-go" href={DONATE.url} target="_blank" rel="noopener">Tip ${def} via {DONATE.label}</a>
+      <div class="fine">Opens {DONATE.label} in a new tab</div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-donate]").forEach((box) => {
+    const go = box.querySelector<HTMLAnchorElement>(".donate-go")!;
+    box.querySelectorAll<HTMLButtonElement>(".amt").forEach((b) => b.addEventListener("click", () => {
+      box.querySelectorAll(".amt").forEach((x) => x.classList.remove("on"));
+      b.classList.add("on");
+      go.textContent = `Tip $${b.dataset.amt} via ${box.dataset.label}`;
+    }));
+  });
+</script>
+
+<style>
+  .donate{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;margin:10px 0 40px;display:grid;grid-template-columns:1.3fr 1fr;gap:20px;align-items:center}
+  @media (max-width:700px){.donate{grid-template-columns:1fr}}
+  h2{margin:0 0 6px;font-size:24px}
+  p{margin:0;color:var(--muted)}
+  .amounts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .amt{flex:1;min-width:60px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:12px 0;font:600 16px Inter,sans-serif;cursor:pointer}
+  .amt.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .donate-go{width:100%;justify-content:center;padding:13px}
+  .fine{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
+</style>

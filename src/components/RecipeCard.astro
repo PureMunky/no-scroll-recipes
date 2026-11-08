@@ -1,0 +1,20 @@
+---
+import { fmtTime, tagsOf, url, type Recipe } from "../lib/recipes";
+interface Props { recipe: Recipe }
+const { recipe: r } = Astro.props;
+---
+<li>
+  <a class="card" href={url(`/recipes/${r.id}/`)}>
+    <span class="emoji" aria-hidden="true">{r.data.emoji}</span>
+    <h3>{r.data.title}</h3>
+    <span class="meta">{fmtTime(r.data.time)} · serves {r.data.servings} · {tagsOf(r).join(", ")}</span>
+  </a>
+</li>
+
+<style>
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;text-decoration:none;display:flex;flex-direction:column;gap:6px;height:100%;transition:transform .12s,border-color .12s}
+  .card:hover{transform:translateY(-2px);border-color:var(--accent)}
+  .emoji{font-size:30px}
+  h3{margin:4px 0 0;font-size:19px;line-height:1.2}
+  .meta{color:var(--muted);font-size:13px}
+</style>
