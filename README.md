@@ -3,7 +3,8 @@
 An ad-free recipe site: tap a dish, get the ingredients and steps. No ads, no life stories, no pop-ups. Supported by reader tips.
 
 ## Structure
-- `index.html` — the whole site (HTML, CSS, JS, recipe data). No build step.
+- `index.html` — the site (HTML, CSS, JS). No build step.
+- `recipes.js` — all recipe data, one object per recipe.
 - `.nojekyll` — tells GitHub Pages to serve files as-is.
 
 ## Donations

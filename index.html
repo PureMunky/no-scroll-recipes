@@ -119,6 +119,7 @@
 </footer>
 <div class="toast" id="toast"></div>
 
+<script src="recipes.js"></script>
 <script>
 /* ===== Config: point this at your donation page (Ko-fi, Buy Me a Coffee, GitHub Sponsors, Stripe Payment Link…) ===== */
 const DONATE = {
@@ -127,49 +128,14 @@ const DONATE = {
   amounts: [3, 5, 10, 25]
 };
 
-const RECIPES = [
-  { id:"weeknight-chicken-tacos", emoji:"🌮", title:"Weeknight Chicken Tacos", tags:["Dinner","Quick"], time:25, serves:4,
-    ing:[[1.5,"lb","boneless chicken thighs"],[1,"tbsp","chili powder"],[1,"tsp","ground cumin"],[1,"tsp","garlic powder"],[0.75,"tsp","salt"],[1,"","lime, juiced"],[2,"tbsp","olive oil"],[8,"","small tortillas"],[2,"cup","shredded cabbage"],[0.5,"cup","sour cream or yogurt"],[0,"","cilantro and hot sauce, to serve"]],
-    steps:["Toss chicken with chili powder, cumin, garlic powder, salt, half the lime juice and 1 tbsp oil.","Heat the remaining oil in a skillet over medium-high. Cook chicken 5–6 minutes per side until 165°F inside.","Rest 5 minutes, then slice thin and squeeze over the rest of the lime.","Warm tortillas in a dry pan, about 20 seconds per side.","Fill with chicken, cabbage, a spoon of sour cream, cilantro and hot sauce."],
-    note:"Thighs stay juicy even if you overshoot a minute. Breasts work but pull them at 160°F." },
-  { id:"one-pot-tomato-pasta", emoji:"🍝", title:"One-Pot Tomato Basil Pasta", tags:["Dinner","Vegetarian","Quick"], time:20, serves:4,
-    ing:[[12,"oz","spaghetti or linguine"],[1,"pint","cherry tomatoes, halved"],[1,"","small onion, thinly sliced"],[4,"","garlic cloves, sliced"],[0.5,"tsp","red pepper flakes"],[3,"tbsp","olive oil"],[4.5,"cup","water"],[2,"tsp","salt"],[1,"cup","fresh basil leaves"],[0.5,"cup","grated parmesan"]],
-    steps:["Put pasta, tomatoes, onion, garlic, pepper flakes, oil, water and salt in a wide pot.","Bring to a boil over high heat, stirring and tossing often with tongs.","Boil 9–10 minutes, stirring, until pasta is al dente and the water has become a glossy sauce.","Off heat, stir in basil and parmesan. Add a splash of water if it tightens up."],
-    note:"Use a pot wide enough that the pasta lies flat — it cooks more evenly." },
-  { id:"crispy-sheet-pan-gnocchi", emoji:"🥘", title:"Crispy Sheet-Pan Gnocchi & Veggies", tags:["Dinner","Vegetarian"], time:30, serves:3,
-    ing:[[17,"oz","shelf-stable potato gnocchi"],[1,"","red bell pepper, chopped"],[1,"","zucchini, chopped"],[1,"","red onion, cut in wedges"],[3,"tbsp","olive oil"],[1,"tsp","Italian seasoning"],[0.75,"tsp","salt"],[4,"oz","fresh mozzarella, torn"]],
-    steps:["Heat oven to 450°F.","Toss gnocchi (straight from the pack, uncooked) and vegetables with oil, seasoning and salt on a sheet pan.","Spread in one layer and roast 20 minutes, flipping halfway, until gnocchi are golden.","Scatter mozzarella over and roast 3 more minutes until melty."],
-    note:"Don't boil the gnocchi first — roasting them raw is what makes them crisp." },
-  { id:"fluffy-pancakes", emoji:"🥞", title:"Fluffy Buttermilk Pancakes", tags:["Breakfast","Kid-friendly"], time:20, serves:4,
-    ing:[[2,"cup","all-purpose flour"],[2,"tbsp","sugar"],[2,"tsp","baking powder"],[0.5,"tsp","baking soda"],[0.5,"tsp","salt"],[2,"cup","buttermilk"],[2,"","eggs"],[4,"tbsp","melted butter"],[1,"tsp","vanilla"]],
-    steps:["Whisk flour, sugar, baking powder, soda and salt in a large bowl.","In another bowl whisk buttermilk, eggs, butter and vanilla.","Pour wet into dry and stir just until combined — lumps are good. Rest 5 minutes.","Heat a lightly buttered griddle over medium. Pour ¼ cup batter per pancake.","Flip when bubbles cover the top and edges look set, about 2 minutes. Cook 1 minute more."],
-    note:"No buttermilk? Stir 2 tbsp lemon juice into 2 cups milk and wait 5 minutes." },
-  { id:"overnight-oats", emoji:"🥣", title:"Peanut Butter Overnight Oats", tags:["Breakfast","Make-ahead","Vegetarian"], time:5, serves:2,
-    ing:[[1,"cup","rolled oats"],[1,"cup","milk"],[0.5,"cup","plain yogurt"],[2,"tbsp","peanut butter"],[1,"tbsp","maple syrup"],[1,"tbsp","chia seeds"],[1,"pinch","salt"],[1,"","banana, sliced, to serve"]],
-    steps:["Stir everything except the banana together in a jar or bowl.","Cover and refrigerate at least 6 hours or overnight.","Stir, loosen with a splash of milk if needed, and top with banana."],
-    note:"Keeps 4 days in the fridge — make a batch on Sunday." },
-  { id:"black-bean-soup", emoji:"🍲", title:"20-Minute Black Bean Soup", tags:["Dinner","Vegetarian","Quick"], time:20, serves:4,
-    ing:[[2,"tbsp","olive oil"],[1,"","onion, diced"],[3,"","garlic cloves, minced"],[2,"tsp","ground cumin"],[1,"tsp","smoked paprika"],[3,"can","black beans (15 oz), undrained"],[2,"cup","vegetable broth"],[1,"cup","salsa"],[1,"","lime, juiced"],[0,"","avocado, cheese, tortilla chips, to serve"]],
-    steps:["Cook onion in oil over medium heat until soft, about 5 minutes. Add garlic, cumin and paprika for 30 seconds.","Add beans with their liquid, broth and salsa. Simmer 10 minutes.","Blend about half the soup (an immersion blender is easiest) so it's thick but still chunky.","Stir in lime juice and season to taste. Top as you like."],
-    note:"" },
-  { id:"chocolate-chip-cookies", emoji:"🍪", title:"Chewy Chocolate Chip Cookies", tags:["Dessert","Kid-friendly"], time:30, serves:24,
-    ing:[[1,"cup","butter, melted"],[1,"cup","brown sugar"],[0.5,"cup","white sugar"],[2,"","eggs"],[2,"tsp","vanilla"],[2.25,"cup","all-purpose flour"],[1,"tsp","baking soda"],[1,"tsp","salt"],[2,"cup","chocolate chips"]],
-    steps:["Heat oven to 350°F and line two baking sheets.","Whisk melted butter with both sugars until smooth, then whisk in eggs and vanilla.","Stir in flour, baking soda and salt, then fold in chocolate chips.","Scoop 2-tablespoon balls onto the sheets, 2 inches apart.","Bake 10–11 minutes, until edges are golden and centers look slightly underdone. Cool on the sheet 5 minutes."],
-    note:"Chill the dough 30 minutes for thicker cookies." },
-  { id:"garlic-butter-salmon", emoji:"🐟", title:"Garlic Butter Salmon", tags:["Dinner","Quick"], time:15, serves:4,
-    ing:[[4,"","salmon fillets (6 oz each)"],[0.75,"tsp","salt"],[0.5,"tsp","black pepper"],[1,"tbsp","olive oil"],[3,"tbsp","butter"],[4,"","garlic cloves, minced"],[1,"","lemon, juiced"],[2,"tbsp","chopped parsley"]],
-    steps:["Pat salmon dry and season with salt and pepper.","Heat oil in a skillet over medium-high. Cook salmon skin-side up 4 minutes until golden, then flip.","Lower heat to medium, add butter and garlic. Spoon the foaming butter over the fish for 2–3 minutes until just cooked.","Squeeze in lemon, scatter parsley, and spoon the pan sauce over each fillet."],
-    note:"Salmon is done at 125°F for medium, 140°F if you like it fully firm." },
-  { id:"fried-rice", emoji:"🍚", title:"Leftover Fried Rice", tags:["Dinner","Quick","Kid-friendly"], time:15, serves:3,
-    ing:[[3,"cup","cold cooked rice"],[2,"tbsp","neutral oil"],[3,"","eggs, beaten"],[1,"cup","frozen peas and carrots"],[3,"","green onions, sliced"],[2,"","garlic cloves, minced"],[3,"tbsp","soy sauce"],[1,"tsp","sesame oil"]],
-    steps:["Heat 1 tbsp oil in a large skillet over high. Scramble eggs until just set, then move to a plate.","Add remaining oil, garlic and the white parts of the green onions for 30 seconds.","Add rice and press it flat. Let it sizzle 1–2 minutes without stirring, then toss.","Add peas and carrots, soy sauce and sesame oil. Stir-fry 2 minutes.","Fold the eggs back in and top with the green onion tops."],
-    note:"Day-old rice is the secret — fresh rice turns mushy." }
-];
+const RECIPES = (window.RECIPES || []).map(r => ({...r, tags: r.time <= 30 && !r.tags.includes("Quick") ? [...r.tags, "Quick"] : r.tags}));
+const TAG_ORDER = ["Breakfast","Lunch","Dinner","Soup","Side","Dessert","Snack","Quick","Vegetarian","Gluten-free","Kid-friendly","Make-ahead","Baking"];
+function fmtTime(m){ if(m < 60) return m + " min"; const h = Math.floor(m/60), r = m % 60; return h + " hr" + (r ? " " + r + " min" : ""); }
 
 const $ = s => document.querySelector(s);
 const app = $("#app");
 let activeTag = "All", query = "";
-const allTags = ["All", ...new Set(RECIPES.flatMap(r => r.tags))];
+const allTags = ["All", ...[...new Set(RECIPES.flatMap(r => r.tags))].sort((a,b)=>{const ia=TAG_ORDER.indexOf(a), ib=TAG_ORDER.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || a.localeCompare(b);})];
 
 function store(k, v){ try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); }catch(e){ return null; } }
 
@@ -198,7 +164,7 @@ function renderHome(){
   app.innerHTML = `
     <section class="hero">
       <h1>The recipe. Right away.</h1>
-      <p>Tap a dish and you land on the ingredients and steps. That's the whole site.</p>
+      <p>${RECIPES.length} recipes. Tap one and you land on the ingredients and steps. That's the whole site.</p>
       <div class="promise"><span class="pill">No ads</span><span class="pill">No life stories</span><span class="pill">No pop-ups</span><span class="pill">Reader-supported</span></div>
       <input class="search" id="q" placeholder="Search recipes or ingredients — try “garlic”" value="${query.replace(/"/g,"&quot;")}">
       <div class="tags">${allTags.map(t=>`<button class="tag ${t===activeTag?"on":""}" data-tag="${t}">${t}</button>`).join("")}</div>
@@ -207,7 +173,7 @@ function renderHome(){
       ${list.map(r=>`<a class="card" href="#${r.id}">
           <div class="emoji">${r.emoji}</div>
           <h3>${r.title}</h3>
-          <div class="meta">${r.time} min · serves ${r.serves} · ${r.tags.join(", ")}</div>
+          <div class="meta">${fmtTime(r.time)} · serves ${r.serves} · ${r.tags.join(", ")}</div>
         </a>`).join("") || `<div class="empty">No recipes match that. Try another word.</div>`}
     </section>`;
   const qi = $("#q");
@@ -225,7 +191,7 @@ function renderRecipe(r){
     <article class="recipe">
       <a class="back" href="#">← All recipes</a>
       <h1>${r.emoji} ${r.title}</h1>
-      <div class="facts"><span><b>${r.time}</b> min</span><span><b>${r.ing.length}</b> ingredients</span><span>${r.tags.join(" · ")}</span></div>
+      <div class="facts"><span><b>${fmtTime(r.time)}</b></span><span><b>${r.ing.length}</b> ingredients</span><span>${r.tags.join(" · ")}</span></div>
       <div class="cols">
         <div class="panel">
           <h2>Ingredients
