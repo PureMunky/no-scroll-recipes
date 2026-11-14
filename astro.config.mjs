@@ -12,6 +12,7 @@ export default defineConfig({
   site,
   base,
   trailingSlash: "always",
-  integrations: [sitemap()],
+  // Leave noindex pages (search) out of the sitemap so Search Console doesn't flag them.
+  integrations: [sitemap({ filter: (page) => !page.endsWith("/search/") })],
   build: { format: "directory", inlineStylesheets: "never" },
 });
